@@ -43,59 +43,20 @@ Resources:
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       MapPublicIpOnLaunch: false
       CidrBlock: "10.0.1.0/24"
-  EfsFileSystem:
-    Type: AWS::EFS::FileSystem
-  MountTargetA:
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref EfsFileSystem
-      SubnetId: !Ref EfsLambdaSubnetA
-      SecurityGroups:
-        - !Ref EfsLambdaSecurityGroup
-  MountTargetB:
-    Type: AWS::EFS::MountTarget
-    Properties:
-      FileSystemId: !Ref EfsFileSystem
-      SubnetId: !Ref EfsLambdaSubnetB
-      SecurityGroups:
-        - !Ref EfsLambdaSecurityGroup
-  AccessPoint:
-    Type: AWS::EFS::AccessPoint
-    Properties:
-      FileSystemId: !Ref EfsFileSystem
-      PosixUser:
-        Gid: "1000"
-        Uid: "1000"
-      RootDirectory:
-        Path: "/lambda"
-        CreationInfo:
-          OwnerGid: "1000"
-          OwnerUid: "1000"
-          Permissions: "755"
   HelloEfsFunction:
     Type: AWS::Serverless::Function
-    DependsOn:
-      - MountTargetA
-      - MountTargetB
     Properties:
       CodeUri: hello_efs/
       Handler: app.lambda_handler
       Runtime: python3.9
       Architectures:
         - x86_64
-      Policies:
-        - EFSWriteAccessPolicy:
-            FileSystem: !Ref EfsFileSystem
-            AccessPoint: !Ref AccessPoint
       VpcConfig:
         SecurityGroupIds:
           - !Ref EfsLambdaSecurityGroup
         SubnetIds:
           - !Ref EfsLambdaSubnetA
           - !Ref EfsLambdaSubnetB
-      FileSystemConfigs:
-        - Arn: !GetAtt AccessPoint.Arn
-          LocalMountPath: /mnt/lambda
       Events:
         HelloWorld:
           Type: Api
