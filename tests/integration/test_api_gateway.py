@@ -35,7 +35,7 @@ class TestApiGateway(TestCase):
     def setUp(self) -> None:
         """
         Based on the provided env variable AWS_SAM_STACK_NAME,
-        here we use cloudformation API to find out what the HelloEfsApi URL is
+        here we use cloudformation API to find out what the LambdaApi URL is
         """
         stack_name = TestApiGateway.get_and_verify_stack_name()
 
@@ -46,8 +46,8 @@ class TestApiGateway(TestCase):
         self.assertTrue(stacks, f"Cannot find stack {stack_name}")
 
         stack_outputs = stacks[0]["Outputs"]
-        api_outputs = [output for output in stack_outputs if output["OutputKey"] == "HelloEfsApi"]
-        self.assertTrue(api_outputs, f"Cannot find output HelloEfsApi in stack {stack_name}")
+        api_outputs = [output for output in stack_outputs if output["OutputKey"] == "LambdaApi"]
+        self.assertTrue(api_outputs, f"Cannot find output LambdaApi in stack {stack_name}")
 
         self.api_endpoint = api_outputs[0]["OutputValue"]
 

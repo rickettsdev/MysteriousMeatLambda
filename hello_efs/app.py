@@ -25,8 +25,8 @@ def lambda_handler(event, context):
         logger.info(f'  {bucket["Name"]}')
     return {
         "statusCode": 200,
-        "body": {
+        "body": json.dumps({
             "bucket_list": bucket_list
-        }
+        })
     }
 

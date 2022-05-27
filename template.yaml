@@ -10,15 +10,15 @@ Globals:
     Timeout: 3
 
 Resources:
-  EfsLambdaVpc:
+  LambdaVpc:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: "10.0.0.0/16"
-  EfsLambdaSecurityGroup:
+  LambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "EFS + Lambda on SAM Security Group"
-      VpcId: !Ref EfsLambdaVpc
+      VpcId: !Ref LambdaVpc
       SecurityGroupEgress:
         - CidrIp: "0.0.0.0/0"
           FromPort: 0
@@ -29,21 +29,21 @@ Resources:
           FromPort: 0
           ToPort: 65535
           IpProtocol: tcp
-  EfsLambdaSubnetA:
+  LambdaSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref EfsLambdaVpc
+      VpcId: !Ref LambdaVpc
       AvailabilityZone: !Select [ 0, !GetAZs '' ]
       MapPublicIpOnLaunch: false
       CidrBlock: "10.0.0.0/24"
-  EfsLambdaSubnetB:
+  LambdaSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref EfsLambdaVpc
+      VpcId: !Ref LambdaVpc
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       MapPublicIpOnLaunch: false
       CidrBlock: "10.0.1.0/24"
-  HelloEfsFunction:
+  LambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: hello_efs/
@@ -53,10 +53,10 @@ Resources:
         - x86_64
       VpcConfig:
         SecurityGroupIds:
-          - !Ref EfsLambdaSecurityGroup
+          - !Ref LambdaSecurityGroup
         SubnetIds:
-          - !Ref EfsLambdaSubnetA
-          - !Ref EfsLambdaSubnetB
+          - !Ref LambdaSubnetA
+          - !Ref LambdaSubnetB
       Events:
         HelloWorld:
           Type: Api
@@ -65,6 +65,6 @@ Resources:
             Method: get
 
 Outputs:
-  HelloEfsApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello EFS function"
+  LambdaApi:
+    Description: "API Gateway endpoint URL for Prod stage for Lambda function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
