@@ -8,25 +8,20 @@ logger.setLevel(logging.INFO)
 BUCKET_NAME = "mysteriousmeat.data"
 FILE_NAME = "thirdPlant/pageData.json"
 
-region = "us-east-2"
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
-    logger.info("s3 client created.")
-    # Retrieve the list of existing buckets
-    response = s3.list_buckets()
+    get_object_response = s3.get_object(
+        Bucket=BUCKET_NAME,
+        Key=FILE_NAME,
+    )
 
-    bucket_list = []
+    logger.info(get_object_response)
+    logger.info("=============================")
+    object_json = json.loads(get_object_response['Body'].read().decode("utf-8"))
 
-    # Output the bucket names
-    logger.info('Existing buckets:')
-    for bucket in response['Buckets']:
-        bucket_list.append(bucket["Name"])
-        logger.info(f'  {bucket["Name"]}')
     return {
         "statusCode": 200,
-        "body": json.dumps({
-            "bucket_list": bucket_list
-        })
+        "body": json.dumps(object_json)
     }
 
