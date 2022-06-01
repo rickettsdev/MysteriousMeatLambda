@@ -43,10 +43,10 @@ Resources:
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       MapPublicIpOnLaunch: false
       CidrBlock: "10.0.1.0/24"
-  LambdaFunction:
+  LambdaFunctionFetchProduct:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello_efs/
+      CodeUri: src/
       Handler: app.lambda_handler
       Runtime: python3.9
       Architectures:
@@ -63,6 +63,27 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+  LambdaFunctionYaYa:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.yaya_lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - !Ref LambdaSubnetA
+          - !Ref LambdaSubnetB
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /yaya
+            Method: post
+            
 
 Outputs:
   LambdaApi:
