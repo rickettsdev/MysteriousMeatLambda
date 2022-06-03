@@ -43,6 +43,31 @@ Resources:
       AvailabilityZone: !Select [ 1, !GetAZs '' ]
       MapPublicIpOnLaunch: false
       CidrBlock: "10.0.1.0/24"
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref LambdaVpc
+      Tags:
+        - Key: Name
+          Value: Private Route Table
+  S3VPCEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcEndpointType: Gateway
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.s3
+      VpcId: !Ref LambdaVpc
+      RouteTableIds:
+        - !Ref PrivateRouteTable
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref LambdaSubnetA
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref LambdaSubnetB
   LambdaFunctionFetchProduct:
     Type: AWS::Serverless::Function
     Properties:
@@ -61,7 +86,7 @@ Resources:
         HelloWorld:
           Type: Api
           Properties:
-            Path: /hello
+            Path: /desc
             Method: get
   LambdaFunctionYaYa:
     Type: AWS::Serverless::Function
@@ -86,6 +111,9 @@ Resources:
             
 
 Outputs:
-  LambdaApi:
-    Description: "API Gateway endpoint URL for Prod stage for Lambda function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+  LambdaFunctionFetchProduct:
+    Description: "API Gateway endpoint URL for Prod stage for fetch products Lambda function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/desc/"
+  LambdaFunctionYaYa:
+    Description: "API Gateway endpoint URL for Prod stage for yaya Lambda function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/yaya/"
