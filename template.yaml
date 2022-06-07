@@ -117,6 +117,10 @@ Resources:
       CodeUri: src/
       Handler: app.yaya_lambda_handler
       Runtime: python3.9
+      Role:
+        Fn::GetAtt:
+          - LambdaRoleAccessS3
+          - Arn
       Architectures:
         - x86_64
       VpcConfig:

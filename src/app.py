@@ -1,4 +1,5 @@
 import json
+import datetime
 import boto3
 
 import logging
@@ -31,6 +32,30 @@ def lambda_handler(event, context):
     }
 
 def yaya_lambda_handler(event, context):
+
+    productName = event['queryStringParameters']['productName']
+    s3PrefixAndFile = f'{productName}/{FILE_NAME}'
+
+    timestamp = datetime.datetime.now().isoformat()
+    message = "This is a test message."
+
+    get_object_response = s3.get_object(
+        Bucket=BUCKET_NAME,
+        Key=s3PrefixAndFile,
+    )
+
+    object_json = json.loads(get_object_response['Body'].read().decode("utf-8"))
+
+    new_notes_list = list(object_json['pageData']['notes'])
+    new_notes_list.append({"count": timestamp, "note": message})
+    object_json['pageData']['notes'] = new_notes_list
+
+    put_object_response = s3.put_object(
+        Body=json.dumps(object_json),
+        Bucket=BUCKET_NAME,
+        Key=s3PrefixAndFile,
+    )
+
     return {
         "statusCode": 201
     }
