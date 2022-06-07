@@ -6,14 +6,19 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 BUCKET_NAME = "mysteriousmeat.data"
-FILE_NAME = "thirdPlant/pageData.json"
+FILE_NAME = "pageData.json"
 
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
+
+    productName = event['queryStringParameters']['productName']
+
+    s3PrefixAndFile = f'{productName}/{FILE_NAME}'
+
     get_object_response = s3.get_object(
         Bucket=BUCKET_NAME,
-        Key=FILE_NAME,
+        Key=s3PrefixAndFile,
     )
 
     logger.info(get_object_response)
