@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  MysteriousMeatLambda
+  MysteriousMeat
 
-  SAM Template for MysteriousMeatLambda
+  SAM Template for MysteriousMeat
 
 Globals:
   Function:
@@ -68,12 +68,35 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref LambdaSubnetB
+  LambdaRoleAccessS3:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName:
+        Fn::Sub: lambda-role
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+            - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      Path: /
   LambdaFunctionFetchProduct:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
       Handler: app.lambda_handler
       Runtime: python3.9
+      Role:
+        Fn::GetAtt:
+          - LambdaRoleAccessS3
+          - Arn
       Architectures:
         - x86_64
       VpcConfig:
