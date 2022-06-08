@@ -47,6 +47,8 @@ def yaya_lambda_handler(event, context):
     object_json = json.loads(get_object_response['Body'].read().decode("utf-8"))
 
     new_notes_list = list(object_json['pageData']['notes'])
+    if (len(new_notes_list) >= 10):
+        return {"statusCode": 418}
     new_notes_list.append({"count": timestamp, "note": message})
     object_json['pageData']['notes'] = new_notes_list
 
@@ -56,7 +58,5 @@ def yaya_lambda_handler(event, context):
         Key=s3PrefixAndFile,
     )
 
-    return {
-        "statusCode": 201
-    }
+    return {"statusCode": 201}
 
