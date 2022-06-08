@@ -37,7 +37,7 @@ def yaya_lambda_handler(event, context):
     s3PrefixAndFile = f'{productName}/{FILE_NAME}'
 
     timestamp = datetime.datetime.now().isoformat()
-    message = "This is a test message."
+    message = event['headers']['message']
 
     get_object_response = s3.get_object(
         Bucket=BUCKET_NAME,
@@ -50,7 +50,7 @@ def yaya_lambda_handler(event, context):
     new_notes_list.append({"count": timestamp, "note": message})
     object_json['pageData']['notes'] = new_notes_list
 
-    put_object_response = s3.put_object(
+    s3.put_object(
         Body=json.dumps(object_json),
         Bucket=BUCKET_NAME,
         Key=s3PrefixAndFile,
