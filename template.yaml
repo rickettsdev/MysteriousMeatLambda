@@ -87,6 +87,11 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
       Path: /
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: Primary AWS Api Gateway
+      StageName: Prod
   LambdaFunctionFetchProduct:
     Type: AWS::Serverless::Function
     Properties:
@@ -109,6 +114,8 @@ Resources:
         HelloWorld:
           Type: Api
           Properties:
+            RestApiId:
+              Ref: ApiGateway
             Path: /desc
             Method: get
   LambdaFunctionYaYa:
@@ -133,6 +140,8 @@ Resources:
         HelloWorld:
           Type: Api
           Properties:
+            RestApiId:
+              Ref: ApiGateway
             Path: /yaya
             Method: post
             
@@ -140,7 +149,7 @@ Resources:
 Outputs:
   LambdaFunctionFetchProduct:
     Description: "API Gateway endpoint URL for Prod stage for fetch products Lambda function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/desc/"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/desc/"
   LambdaFunctionYaYa:
     Description: "API Gateway endpoint URL for Prod stage for yaya Lambda function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/yaya/"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/yaya/"
